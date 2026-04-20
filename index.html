@@ -140,7 +140,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
   <div class="ph">
     <div><div class="pt">Commandes NL</div><div class="ps">Lignes en cours — actions à traiter</div></div>
     <div class="ha">
-      <button class="btn bg_" onclick="sendAllPage('nl')">📧 Envoyer tous les mails</button>
+      <button class="btn bg_" onclick="createAllDrafts('nl')">📥 Brouillons dans Gmail</button>
       <button class="btn bp" onclick="openAdd('nl')">+ Ajouter</button>
     </div>
   </div>
@@ -162,7 +162,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
   <div class="ph">
     <div><div class="pt">Stock faible</div><div class="ps">Ruptures et couvertures insuffisantes</div></div>
     <div class="ha">
-      <button class="btn bg_" onclick="sendAllPage('stock')">📧 Relancer tous les FRN</button>
+      <button class="btn bg_" onclick="createAllDrafts('stock')">📥 Brouillons dans Gmail</button>
       <button class="btn bp" onclick="openAdd('stock')">+ Ajouter</button>
     </div>
   </div>
@@ -185,7 +185,7 @@ tbody tr:hover td{background:rgba(255,255,255,.02)}
   <div class="ph">
     <div><div class="pt">Innovations</div><div class="ps">Alertes KO sur articles innovation</div></div>
     <div class="ha">
-      <button class="btn bg_" onclick="sendAllPage('inno')">📧 Relancer tous</button>
+      <button class="btn bg_" onclick="createAllDrafts('inno')">📥 Brouillons dans Gmail</button>
       <button class="btn bp" onclick="openAdd('inno')">+ Ajouter</button>
     </div>
   </div>
@@ -851,6 +851,25 @@ function sendAllPage(type){
   if(!p.length){toast('Aucun email en attente','error');return;}
   openEmail(type,p[0].id);
 }
+async function createAllDrafts(type){
+  if(!connected){toast('Connecte le Sheet d\'abord','error');return;}
+  const pending=DB[type].filter(r=>r.statut==='en_attente');
+  if(!pending.length){toast('Aucun email en attente','error');return;}
+  toast('Création des brouillons...','loading',0);
+  const tabMap={nl:'NL',stock:'Stock',inno:'Inno',pch:'PCH'};
+  const emails=pending.map(row=>{
+    const{to,subject,body}=buildMail(type,row);
+    return{to,subject,body,frnName:row.fournisseur||row.frn||'',type,rowId:row.id,tab:tabMap[type]};
+  });
+  try{
+    const res=await api({action:'createAllDrafts',emails});
+    pending.forEach(r=>r.statut='envoye');
+    sv(); rend(type); updateNB();
+    setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+    toast(res.message+' — Vérifie tes brouillons Gmail ✓');
+  }catch(e){toast('Erreur création brouillons','error');}
+}
+
 function reopenHist(h){
   document.getElementById('em-to').textContent=h.to;
   document.getElementById('em-subj').textContent=h.subject;
