@@ -855,19 +855,49 @@ async function createAllDrafts(type){
   if(!connected){toast('Connecte le Sheet d\'abord','error');return;}
   const pending=DB[type].filter(r=>r.statut==='en_attente');
   if(!pending.length){toast('Aucun email en attente','error');return;}
-  toast('Création des brouillons...','loading',0);
+  toast('Création des brouillons ('+pending.length+')...','loading',0);
   const tabMap={nl:'NL',stock:'Stock',inno:'Inno',pch:'PCH'};
-  const emails=pending.map(row=>{
-    const{to,subject,body}=buildMail(type,row);
-    return{to,subject,body,frnName:row.fournisseur||row.frn||'',type,rowId:row.id,tab:tabMap[type]};
+  const emails=[];
+  pending.forEach(row=>{
+    try{
+      const mail=buildMail(type,row);
+      if(!mail||!mail.to||mail.to.includes('À RENSEIGNER')){
+        console.warn('Mail ignoré — pas de destinataire pour',row.frn||row.fournisseur);
+        return;
+      }
+      emails.push({
+        to: mail.to,
+        subject: mail.subject,
+        body: mail.body,
+        frnName: row.fournisseur||row.frn||'',
+        type: type,
+        rowId: row.id,
+        tab: tabMap[type]
+      });
+    }catch(err){
+      console.error('Erreur buildMail',err);
+    }
   });
+  if(!emails.length){
+    setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+    toast('Aucun email valide — vérifie les contacts FRN','error');
+    return;
+  }
   try{
     const res=await api({action:'createAllDrafts',emails});
-    pending.forEach(r=>r.statut='envoye');
-    sv(); rend(type); updateNB();
+    if(res.success){
+      pending.forEach(r=>r.statut='envoye');
+      sv(); rend(type); updateNB();
+      setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+      toast(res.message+' — Vérifie tes brouillons Gmail ✓');
+    }else{
+      setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+      toast('Erreur : '+(res.error||'inconnue'),'error');
+    }
+  }catch(e){
     setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
-    toast(res.message+' — Vérifie tes brouillons Gmail ✓');
-  }catch(e){toast('Erreur création brouillons','error');}
+    toast('Erreur réseau : '+e.toString(),'error');
+  }
 }
 
 function reopenHist(h){
