@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Appro DPH</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--surface:#161820;--surface2:#1e2028;--surface3:#252830;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2dd4a0;--orange:#f59e42;--red:#f25757;--text:#e8eaf0;--text2:#8b8fa8;--text3:#565870;--mono:'DM Mono',monospace;--sans:'Syne',sans-serif;--r:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+#cfg{background:linear-gradient(90deg,rgba(79,142,247,.12),rgba(124,92,252,.08));border-bottom:1px solid var(--border2);padding:8px 20px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text2);flex-wrap:wrap}
+#cfg input{flex:1;min-width:200px;max-width:420px;background:var(--surface3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 10px;outline:none}
+#cfg input:focus{border-color:var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;transition:.3s}
+.dot.on{background:var(--green)}
+.cfg-btn{padding:5px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+.cfg-btn:hover{opacity:.85}
+#cfg-status{color:var(--text3);font-size:11px}
+.topbar{display:flex;align-items:center;gap:14px;padding:0 20px;height:52px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:100}
+.logo{font-size:15px;font-weight:700}.logo span{color:var(--accent)}
+.badge-date{font-family:var(--mono);font-size:11px;padding:2px 10px;border-radius:20px;background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+.tr{margin-left:auto;display:flex;gap:6px}
+.tbtn{display:flex;align-items:center;gap:5px;padding:5px 12px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--text2);font-family:var(--sans);font-size:12px;cursor:pointer;transition:.12s}
+.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:14px 0}
+.sb-sec{padding:0 10px;margin-bottom:18px}
+.sb-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;padding:0 8px;margin-bottom:5px}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text2);transition:.1s;border:none;background:none;width:100%;text-align:left;font-family:var(--sans)}
+.ni:hover{background:var(--surface3);color:var(--text)}.ni.active{background:rgba(79,142,247,.15);color:var(--accent);font-weight:600}
+.ni-icon{font-size:14px;width:17px;text-align:center}
+.nb{margin-left:auto;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(242,87,87,.2);color:var(--red)}
+.nb.o{background:rgba(245,158,66,.2);color:var(--orange)}.nb.b{background:rgba(79,142,247,.2);color:var(--accent)}
+.main{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.page{display:none;flex-direction:column;gap:14px}.page.active{display:flex}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pt{font-size:20px;font-weight:700}.ps{font-size:12px;color:var(--text2);margin-top:2px}
+.ha{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px}
+.sl{font-size:11px;color:var(--text3);margin-bottom:4px}
+.sv{font-size:24px;font-weight:700;font-family:var(--mono)}
+.sv.r{color:var(--red)}.sv.o{color:var(--orange)}.sv.g{color:var(--green)}.sv.b{color:var(--accent)}
+.tbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.tbar input,.tbar select{background:var(--surface);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:12px;padding:6px 10px;outline:none}
+.tbar input:focus,.tbar select:focus{border-color:var(--accent)}.tbar input{width:190px}
+.btn{display:flex;align-items:center;gap:5px;padding:6px 14px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:.12s;white-space:nowrap}
+.bp{background:var(--accent);color:#fff}.bp:hover{opacity:.85}
+.bg_{background:transparent;border:1px solid var(--border2);color:var(--text2)}.bg_:hover{border-color:var(--accent);color:var(--accent)}
+.bgrn{background:rgba(45,212,160,.12);color:var(--green);border:1px solid rgba(45,212,160,.25)}
+.bred{background:rgba(242,87,87,.12);color:var(--red);border:1px solid rgba(242,87,87,.22)}
+.tw{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:var(--surface2)}
+th{padding:9px 11px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:8px 11px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.mono{font-family:var(--mono)}.er{text-align:center;padding:2rem;color:var(--text3)}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;font-family:var(--mono);white-space:nowrap}
+.badge.r{background:rgba(242,87,87,.15);color:var(--red);border:1px solid rgba(242,87,87,.25)}
+.badge.o{background:rgba(245,158,66,.15);color:var(--orange);border:1px solid rgba(245,158,66,.25)}
+.badge.g{background:rgba(45,212,160,.15);color:var(--green);border:1px solid rgba(45,212,160,.25)}
+.badge.b{background:rgba(79,142,247,.15);color:var(--accent);border:1px solid rgba(79,142,247,.25)}
+.badge.gy{background:var(--surface3);color:var(--text2);border:1px solid var(--border)}
+.arb{display:flex;align-items:center;gap:7px;padding:9px 14px;width:100%;background:transparent;border:none;border-top:1px solid var(--border);color:var(--text3);font-family:var(--sans);font-size:12px;cursor:pointer;transition:.12s}
+.arb:hover{color:var(--accent);background:rgba(79,142,247,.04)}
+.ia{display:flex;gap:4px}
+.ia button{padding:3px 9px;font-size:11px;border-radius:5px;cursor:pointer;font-family:var(--sans);transition:.1s}
+.mb{border:1px solid rgba(79,142,247,.3);background:transparent;color:var(--accent)}.mb:hover{background:rgba(79,142,247,.12)}
+.eb{border:1px solid rgba(245,158,66,.3);background:transparent;color:var(--orange)}.eb:hover{background:rgba(245,158,66,.12)}
+.db{border:1px solid rgba(242,87,87,.22);background:transparent;color:var(--red)}.db:hover{background:rgba(242,87,87,.12)}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;width:580px;max-width:96vw;max-height:90vh;overflow-y:auto;padding:22px}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:5px}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:18px}
+.mf{margin-bottom:12px}.mf label{display:block;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.mf input,.mf textarea,.mf select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 11px;outline:none;resize:vertical}
+.mf input:focus,.mf textarea:focus{border-color:var(--accent)}.mf textarea{min-height:75px}
+.mac{display:flex;gap:7px;justify-content:flex-end;margin-top:18px}
+.ehdr{font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.9}
+.ehdr span{color:var(--accent);font-weight:600}
+.etip{font-size:11px;color:var(--text3);margin-bottom:12px;margin-top:-6px}
+.cg{display:flex;flex-direction:column;gap:8px}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:flex;align-items:flex-start;gap:14px}
+.cc:hover{border-color:var(--border2)}
+.cav{width:38px;height:38px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff;flex-shrink:0}
+.ci{flex:1;min-width:0}.cn{font-size:13px;font-weight:600}
+.ck{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.cm{font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 16px;font-size:13px;display:flex;align-items:center;gap:8px;transform:translateY(70px);opacity:0;transition:.22s;z-index:300;max-width:340px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:rgba(45,212,160,.4)}
+#toast.error{border-color:rgba(242,87,87,.4)}
+#toast.loading{border-color:rgba(79,142,247,.4)}
+.spin{width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="cfg">
+  <div class="dot" id="dot"></div>
+  <span>Apps Script URL :</span>
+  <input type="text" id="api-url" placeholder="https://script.google.com/macros/s/TON_ID/exec">
+  <button class="cfg-btn" onclick="connect()">Connecter</button>
+  <span id="cfg-status">Non connecté — colle l'URL Apps Script puis clique Connecter</span>
+</div>
+
+<div class="topbar">
+  <div class="logo">Appro<span>DPH</span></div>
+  <div class="badge-date" id="today"></div>
+  <div class="tr">
+    <button class="tbtn" onclick="syncAll()">↑ Sync Sheet</button>
+    <button class="tbtn" onclick="pullAll()">↓ Charger</button>
+  </div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="sb-sec">
+    <div class="sb-lbl">Suivi quotidien</div>
+    <button class="ni active" onclick="nav('nl',this)"><span class="ni-icon">📋</span>Commandes NL<span class="nb b" id="nb-nl">0</span></button>
+    <button class="ni" onclick="nav('stock',this)"><span class="ni-icon">📦</span>Stock faible<span class="nb" id="nb-stock">0</span></button>
+    <button class="ni" onclick="nav('inno',this)"><span class="ni-icon">🆕</span>Innovations<span class="nb o" id="nb-inno">0</span></button>
+    <button class="ni" onclick="nav('pch',this)"><span class="ni-icon">🏷️</span>Promotions<span class="nb o" id="nb-pch">0</span></button>
+  </div>
+  <div class="sb-sec">
+    <div class="sb-lbl">Référentiel</div>
+    <button class="ni" onclick="nav('contacts',this)"><span class="ni-icon">📧</span>Contacts FRN</button>
+    <button class="ni" onclick="nav('history',this)"><span class="ni-icon">🕐</span>Historique</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- NL -->
+<div class="page active" id="page-nl">
+  <div class="ph">
+    <div><div class="pt">Commandes NL</div><div class="ps">Lignes en cours — actions à traiter</div></div>
+    <div class="ha">
+      <button class="btn bg_" onclick="sendAllPage('nl')">📧 Envoyer tous les mails</button>
+      <button class="btn bp" onclick="openAdd('nl')">+ Ajouter</button>
+    </div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">Total</div><div class="sv b" id="s-nl-tot">0</div></div>
+    <div class="sc"><div class="sl">En attente</div><div class="sv r" id="s-nl-pend">0</div></div>
+    <div class="sc"><div class="sl">Envoyés</div><div class="sv g" id="s-nl-sent">0</div></div>
+    <div class="sc"><div class="sl">Actions aujourd'hui</div><div class="sv o" id="s-nl-act">0</div></div>
+  </div>
+  <div class="tbar">
+    <input type="text" placeholder="Rechercher..." oninput="filt('nl',this.value)">
+    <select onchange="filtAD('nl',this.value)"><option value="">Tous appros</option><option>AD02</option><option>AD03</option><option>AD04</option><option>AD05</option><option>AD06</option><option>AD07</option><option>AD10</option></select>
+  </div>
+  <div class="tw"><table><thead><tr><th>N° CMD</th><th>FRN</th><th>ENT</th><th>Date</th><th>Avis EX</th><th>Fournisseur</th><th>Appro</th><th>Action</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="tb-nl"></tbody></table><button class="arb" onclick="openAdd('nl')">＋ Nouvelle ligne</button></div>
+</div>
+
+<!-- STOCK -->
+<div class="page" id="page-stock">
+  <div class="ph">
+    <div><div class="pt">Stock faible</div><div class="ps">Ruptures et couvertures insuffisantes</div></div>
+    <div class="ha">
+      <button class="btn bg_" onclick="sendAllPage('stock')">📧 Relancer tous les FRN</button>
+      <button class="btn bp" onclick="openAdd('stock')">+ Ajouter</button>
+    </div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">Ruptures</div><div class="sv r" id="s-st-rup">0</div></div>
+    <div class="sc"><div class="sl">Stock faible</div><div class="sv o" id="s-st-fbl">0</div></div>
+    <div class="sc"><div class="sl">Potentiel €</div><div class="sv b" id="s-st-pot">0</div></div>
+    <div class="sc"><div class="sl">Relancés</div><div class="sv g" id="s-st-sent">0</div></div>
+  </div>
+  <div class="tbar">
+    <input type="text" placeholder="IFLS, libellé..." oninput="filt('stock',this.value)">
+    <select onchange="filtDiag(this.value)"><option value="">Tous diagnostics</option><option value="sans stock">Rupture</option><option value="STOCK faible">Stock faible</option><option value="avec stock">Avec stock</option></select>
+    <select onchange="filtAD('stock',this.value)"><option value="">Tous appros</option><option>AD04</option><option>AD05</option><option>AD06</option><option>AD07</option></select>
+  </div>
+  <div class="tw"><table><thead><tr><th>Cl.</th><th>IFLS</th><th>Libellé</th><th>Entrepôt</th><th>Diagnostic</th><th>Fournisseur</th><th>Pot. €</th><th>Couv. j</th><th>Appro</th><th>Actions</th></tr></thead><tbody id="tb-stock"></tbody></table><button class="arb" onclick="openAdd('stock')">＋ Nouvelle ligne</button></div>
+</div>
+
+<!-- INNO -->
+<div class="page" id="page-inno">
+  <div class="ph">
+    <div><div class="pt">Innovations</div><div class="ps">Alertes KO sur articles innovation</div></div>
+    <div class="ha">
+      <button class="btn bg_" onclick="sendAllPage('inno')">📧 Relancer tous</button>
+      <button class="btn bp" onclick="openAdd('inno')">+ Ajouter</button>
+    </div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">KO niveau 4</div><div class="sv r" id="s-in-4">0</div></div>
+    <div class="sc"><div class="sl">KO niveau 3</div><div class="sv o" id="s-in-3">0</div></div>
+    <div class="sc"><div class="sl">Résol. tardive</div><div class="sv o" id="s-in-2">0</div></div>
+    <div class="sc"><div class="sl">Total alertes</div><div class="sv b" id="s-in-tot">0</div></div>
+  </div>
+  <div class="tbar">
+    <input type="text" placeholder="IFLS, libellé..." oninput="filt('inno',this.value)">
+    <select onchange="filtAlerte(this.value)"><option value="">Toutes alertes</option><option value="4 -">KO - Sans stock</option><option value="3 -">KO - Engagement</option><option value="2 -">Résol. tardive</option></select>
+  </div>
+  <div class="tw"><table><thead><tr><th>IFLS</th><th>Libellé</th><th>Entrepôt</th><th>Alerte</th><th>Fournisseur</th><th>Encours</th><th>Date réc.</th><th>Appro</th><th>Actions</th></tr></thead><tbody id="tb-inno"></tbody></table><button class="arb" onclick="openAdd('inno')">＋ Nouvelle ligne</button></div>
+</div>
+
+<!-- PCH -->
+<div class="page" id="page-pch">
+  <div class="ph">
+    <div><div class="pt">Promotions PCH</div><div class="ps">Déblocage des opérations promo</div></div>
+    <div class="ha"><button class="btn bp" onclick="openAdd('pch')">+ Ajouter</button></div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">Alertes nat.</div><div class="sv r" id="s-pch-nat">0</div></div>
+    <div class="sc"><div class="sl">Alertes loc.</div><div class="sv o" id="s-pch-loc">0</div></div>
+    <div class="sc"><div class="sl">Taux moy.</div><div class="sv b" id="s-pch-taux">—</div></div>
+    <div class="sc"><div class="sl">À débloquer</div><div class="sv o" id="s-pch-todo">0</div></div>
+  </div>
+  <div class="tbar"><input type="text" placeholder="Référence, libellé..." oninput="filt('pch',this.value)"></div>
+  <div class="tw"><table><thead><tr><th>Clé</th><th>Libellé</th><th>ENT</th><th>Op.</th><th>Alerte</th><th>Taux</th><th>FRN</th><th>Appro</th><th>Actions</th></tr></thead><tbody id="tb-pch"></tbody></table><button class="arb" onclick="openAdd('pch')">＋ Nouvelle ligne</button></div>
+</div>
+
+<!-- CONTACTS -->
+<div class="page" id="page-contacts">
+  <div class="ph">
+    <div><div class="pt">Contacts fournisseurs</div><div class="ps">1 fournisseur = 1 fiche — sans doublons</div></div>
+    <div class="ha">
+      <button class="btn bg_" onclick="loadContacts()">↓ Charger depuis Sheet</button>
+      <button class="btn bp" onclick="openAddContact()">+ Nouveau contact</button>
+    </div>
+  </div>
+  <div class="tbar">
+    <input type="text" placeholder="Nom, code, email..." oninput="filtC(this.value)">
+    <select onchange="filtCAD(this.value)"><option value="">Tous appros</option><option>AD02</option><option>AD03</option><option>AD04</option><option>AD05</option><option>AD06</option><option>AD07</option></select>
+  </div>
+  <div class="cg" id="cg"></div>
+</div>
+
+<!-- HISTORY -->
+<div class="page" id="page-history">
+  <div class="ph">
+    <div><div class="pt">Historique emails</div><div class="ps">Tous les mails envoyés</div></div>
+    <div class="ha"><button class="btn bred" onclick="clearHist()">🗑 Effacer</button></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Date/Heure</th><th>Destinataire</th><th>Fournisseur</th><th>Objet</th><th>Type</th><th>Voir</th></tr></thead><tbody id="tb-hist"></tbody></table></div>
+</div>
+
+</div></div>
+
+<!-- MODAL EMAIL -->
+<div class="mo" id="mo-email">
+  <div class="modal">
+    <div class="modal-title">📧 Email de relance</div>
+    <div class="modal-sub" id="mo-email-sub">—</div>
+    <div class="ehdr">À : <span id="em-to">—</span><br>Objet : <span id="em-subj">—</span></div>
+    <div class="mf"><label>Corps du message (modifiable avant envoi)</label><textarea id="em-body" style="min-height:190px;font-size:11px"></textarea></div>
+    <div class="etip">💡 Sheet connecté → envoi direct Gmail. Sinon → copier dans Outlook.</div>
+    <div class="mac">
+      <button class="btn bg_" onclick="closeM('mo-email')">Fermer</button>
+      <button class="btn bg_" onclick="copyEmail()">📋 Copier</button>
+      <button class="btn bgrn" id="send-btn" onclick="doSend()">📤 Ouvrir dans Gmail</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AJOUTER/MODIFIER -->
+<div class="mo" id="mo-add">
+  <div class="modal">
+    <div class="modal-title" id="mo-add-title">Ajouter</div>
+    <div class="modal-sub">Synchronisé automatiquement avec Google Sheets</div>
+    <div id="mo-add-fields"></div>
+    <div class="mac">
+      <button class="btn bg_" onclick="closeM('mo-add')">Annuler</button>
+      <button class="btn bp" onclick="saveRow()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTACT -->
+<div class="mo" id="mo-contact">
+  <div class="modal">
+    <div class="modal-title" id="mo-ct-title">Contact fournisseur</div>
+    <div class="modal-sub">1 CODE FRN = 1 fiche — les doublons sont fusionnés automatiquement</div>
+    <div class="mf"><label>Nom fournisseur *</label><input type="text" id="ct-frn" placeholder="EURECA PROCTER VMI"></div>
+    <div class="mf"><label>Code FRN *</label><input type="text" id="ct-code" placeholder="88332"></div>
+    <div class="mf"><label>Approvisionneur</label>
+      <select id="ct-appro"><option>AD02</option><option>AD03</option><option selected>AD04</option><option>AD05</option><option>AD06</option><option>AD07</option><option>AD10</option></select>
+    </div>
+    <div class="mf"><label>Email(s) * — séparer par " ; " si plusieurs destinataires</label>
+      <textarea id="ct-mail" placeholder="contact@frn.fr; autre@frn.fr" style="min-height:60px"></textarea>
+    </div>
+    <div class="mac">
+      <button class="btn bg_" onclick="closeM('mo-contact')">Annuler</button>
+      <button class="btn bp" onclick="saveContact()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><span id="t-ico">✓</span><span id="t-msg">—</span></div>
+
+<script>
+const AK='appro-api-url';
+let API=localStorage.getItem(AK)||'';
+let connected=false;
+let DB={nl:[],stock:[],inno:[],pch:[],contacts:[],history:[]};
+let filters={nl:{text:'',ad:''},stock:{text:'',ad:'',diag:''},inno:{text:'',alerte:''},pch:{text:''}};
+let editMode=null;
+let emailCtx=null;
+let cFilt={text:'',ad:''};
+
+try{const s=localStorage.getItem('appro-db');if(s)DB=Object.assign(DB,JSON.parse(s));}catch(e){}
+
+// defaults
+if(!DB.contacts.length)DB.contacts=[
+  {frn:"EURECA PROCTER VMI",code:"88332",appro:"AD04",mail:"bidan.a@pg.com; doyet.e@pg.com; durnerin.s@pg.com; ferrand.g.1@pg.com; vivet.ev@pg.com"},
+  {frn:"MCBRIDE",code:"23847",appro:"AD04",mail:"RospordenOrderTeam@mcbride.eu; Emilie.Vignez@mcbride.eu; valerie.picard@mcbride.eu"},
+  {frn:"WEPA FRANCE SAS",code:"79309",appro:"AD06",mail:"helene.millot@wepa.eu; ludivine.marcel@wepa.eu; peggy.denys@wepa.eu"},
+  {frn:"PROVEN ORAPI GROUP",code:"86311",appro:"AD07",mail:"tina.carchidi@proven.fr; jamal.idrahou@proven.fr; karine.luce@proven.fr"},
+  {frn:"BOLTON SOLITAIRE",code:"88336",appro:"AD07",mail:"cgrandjean@boltonsolitaire.fr; evicente@interloglogistic.com"},
+  {frn:"MSG 239/791",code:"11738",appro:"AD03",mail:"estelle.rochette@msg-france.fr; patricia.soliveres@msg-france.fr"},
+  {frn:"HENKEL VMI",code:"88365",appro:"AD05",mail:"rachida.sekkil@henkel.com; brice.pichot@henkel.com; elise.zhang@henkel.com"},
+  {frn:"IDEAL",code:"44261",appro:"AD05",mail:"fbellot@ideal.fr; awicker@ideal.fr; habaynagh@ideal.fr"},
+  {frn:"ARDEA",code:"79139",appro:"AD04",mail:"sbercot@ardeagroupe.fr"},
+  {frn:"COLGATE PALMOLIVE",code:"88341",appro:"AD06",mail:"fabienne_ghirardo@colpal.com; fr-lpo-gpa-colgate@fmlogistic.com"},
+  {frn:"RECKITT FRANCE",code:"88355",appro:"AD03",mail:"Fleur.Billaut@reckitt.com; Martine.Deminiac@reckitt.com"},
+  {frn:"UNILEVER FRANCE",code:"88354",appro:"AD06",mail:"Mathieu.Manga@unilever.com; Eric.Nebbout@unilever.com"},
+  {frn:"SOFIDEL FRANCE",code:"60270",appro:"AD04",mail:"charlotte.robert@sofidel.com; armelle.lagrue@sofidel.com"},
+  {frn:"KENVUE",code:"88349",appro:"AD02",mail:"IPutzova@kenvue.com; MOubrech@kenvue.com"},
+  {frn:"WERNER & MERTZ",code:"30909",appro:"AD05",mail:"placroix@werner-mertz.com; aflores@werner-mertz.com"},
+  {frn:"RB HYGIENE HOME",code:"88356",appro:"AD03",mail:"Tunay.tamur@reckitt.com; Imad.Ouikassi@reckitt.com"},
+  {frn:"ESSITY FRANCE",code:"88345",appro:"AD06",mail:"customerservicebrandfrbe@essity.com; omaima.idrissi@essity.com"},
+  {frn:"DELTA PRONATURA",code:"69004",appro:"AD06",mail:"lboissac@delta-pronatura.fr; wneveu@delta-pronatura.fr"},
+  {frn:"INCASA",code:"72200",appro:"AD05",mail:"logistics@incasa.fr"},
+  {frn:"PINTAUD",code:"69516",appro:"AD05",mail:"commandes@pintaud.net"},
+  {frn:"HERITAGE",code:"86604",appro:"AD05",mail:"jbouaknin@heritagefrance.fr; alufeaux@heritagefrance.fr"},
+  {frn:"NAVIGATOR",code:"41837",appro:"AD05",mail:"mrobquin@thenavigatorcompany.com; jsousa2@thenavigatorcompany.com"},
+  {frn:"HARRIS LE BRIOCHIN",code:"18251",appro:"AD04",mail:"adv2@lebriochin.com; e.hugon@lebriochin.com"},
+  {frn:"JAG DIFFUSION",code:"5556",appro:"AD05",mail:"jrochur@jagprima.com; cturban@jagprima.com"},
+  {frn:"EUR JOHNSON FRANCAIS",code:"88366",appro:"AD05",mail:"YPLeRoy@scj.com"},
+  {frn:"STARWELL",code:"70528",appro:"AD06",mail:"Sarah.Gauthier@stef.com"},
+  {frn:"OPTIMAL CARE",code:"79156",appro:"AD04",mail:"recepcion1@optimalcaresa.com; nereacanete@optimalcaresa.com"},
+  {frn:"RENOVA FRANCE",code:"29402",appro:"AD04",mail:"logistique.france.belux@renova.fr"},
+];
+if(!DB.nl.length)DB.nl=[
+  {id:u(),cmd:"08849919",frn:"11738",ent:"962",depot:"ROYE",date:"14/04/26",avis:"09/04/26",action:"20/04",fournisseur:"MSG 239/791",appro:"AD03",statut:"en_attente"},
+  {id:u(),cmd:"06698241",frn:"86311",ent:"014",depot:"SALON",date:"15/04/26",avis:"",action:"20/04",fournisseur:"PROVEN ORAPI GROUP",appro:"AD07",statut:"en_attente"},
+  {id:u(),cmd:"00492345",frn:"86311",ent:"195",depot:"BAGE",date:"15/04/26",avis:"",action:"20/04",fournisseur:"PROVEN ORAPI GROUP",appro:"AD07",statut:"en_attente"},
+  {id:u(),cmd:"06395529",frn:"86311",ent:"239",depot:"VENDIN 2",date:"15/04/26",avis:"",action:"20/04",fournisseur:"PROVEN ORAPI GROUP",appro:"AD07",statut:"en_attente"},
+  {id:u(),cmd:"08973543",frn:"86311",ent:"290",depot:"LE MANS",date:"15/04/26",avis:"",action:"20/04",fournisseur:"PROVEN ORAPI GROUP",appro:"AD07",statut:"en_attente"},
+  {id:u(),cmd:"06862901",frn:"88332",ent:"542",depot:"EPAUX",date:"13/04/26",avis:"",action:"21/04",fournisseur:"EURECA PROCTER VMI",appro:"AD04",statut:"en_attente"},
+  {id:u(),cmd:"06715500",frn:"88336",ent:"542",depot:"EPAUX",date:"13/04/26",avis:"",action:"21/04",fournisseur:"BOLTON SOLITAIRE",appro:"AD07",statut:"en_attente"},
+  {id:u(),cmd:"00599600",frn:"88336",ent:"792",depot:"CHOLET",date:"14/04/26",avis:"",action:"21/04",fournisseur:"BOLTON SOLITAIRE",appro:"AD07",statut:"en_attente"},
+];
+if(!DB.stock.length)DB.stock=[
+  {id:u(),classe:"A",ifls:"160369",lib:"12RLX PH.BLC 2P CONFORT CRF ES",ent:"962 - ROYE",diag:"sans stock, sans encours à COMMANDER",frn:"WEPA FRANCE SAS",pot:"2817",couv:"5",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+  {id:u(),classe:"A",ifls:"179792",lib:"750ML GEL WC JAVEL PP NN",ent:"011 - COLOMIERS",diag:"avec stock, sans encours, à COMMANDER",frn:"MCBRIDE",pot:"412",couv:"9",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+  {id:u(),classe:"A",ifls:"660281",lib:"6RLX PH ULTRA CONFORT 5P CRF",ent:"239 - VENDIN 2",diag:"sans stock, sans encours à COMMANDER",frn:"WEPA FRANCE SAS",pot:"2574",couv:"0",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+  {id:u(),classe:"A",ifls:"K73809",lib:"X24 PH 2 PLIS BLANC CRF ESSEN",ent:"812 - PRESLES",diag:"sans stock, sans encours à COMMANDER",frn:"WEPA FRANCE SAS",pot:"8535",couv:"0",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+  {id:u(),classe:"A",ifls:"W10679",lib:"35D LSV LIQ ORIGINAL ARIEL",ent:"174 - AULNAY",diag:"sans stock, sans encours à COMMANDER",frn:"EURECA PROCTER VMI",pot:"6550",couv:"3",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+  {id:u(),classe:"A",ifls:"Z79489",lib:"ARIEL LIQUIDE ALPINE 70D",ent:"174 - AULNAY",diag:"sans stock, sans encours à COMMANDER",frn:"EURECA PROCTER VMI",pot:"159",couv:"0",appro:"AD04",comment:"Relance fournisseur",statut:"en_attente"},
+];
+if(!DB.inno.length)DB.inno=[
+  {id:u(),ifls:"V92376",lib:"SWIFF KIT BALAIS HUMIDE 6RECH",ent:"AULNAY",alerte:"2 - KO - résolution tardive",frn:"EURECA PROCTER VMI",encours:"2",dateRec:"28/04",appro:"AD04",comment:"relance frn"},
+  {id:u(),ifls:"Z79501",lib:"ARIEL LIQUIDE ORIGINAL 20D",ent:"AULNAY",alerte:"3 - KO - Stock + encours < engagement",frn:"EURECA PROCTER VMI",encours:"30",dateRec:"14/04",appro:"AD04",comment:"Relance jeudi"},
+  {id:u(),ifls:"Z79489",lib:"ARIEL LIQUIDE ALPINE 70D",ent:"AULNAY",alerte:"4 - KO - sans stock sans encours",frn:"EURECA PROCTER VMI",encours:"0",dateRec:"",appro:"AD04",comment:"relance frn"},
+  {id:u(),ifls:"N71339",lib:"X6 PH 3PLIS BLC/VERT AMAN CRF",ent:"SALON",alerte:"4 - KO - sans stock sans encours",frn:"WEPA FRANCE SAS",encours:"0",dateRec:"",appro:"AD04",comment:"relance frn"},
+  {id:u(),ifls:"Z37961",lib:"X8 CULOTTE NUIT L ALW DISCREET",ent:"THUIT HEBERT",alerte:"4 - KO - sans stock sans encours",frn:"EURECA PROCTER VMI",encours:"0",dateRec:"",appro:"AD04",comment:"relance frn"},
+];
+if(!DB.pch.length)DB.pch=[
+  {id:u(),ref:"2026_6319_V91040_962",lib:"ARIEL PODS GRDSE ORIGINAL 15D",ent:"ROYE",op:"P19",alerte:"alerte locale",taux:"61.1%",frn:"88332",appro:"AD04"},
+  {id:u(),ref:"2026_6319_V91058_962",lib:"15D ARIEL PODS GRAND ALPINE",ent:"ROYE",op:"P19",alerte:"alerte locale",taux:"73.7%",frn:"88332",appro:"AD04"},
+  {id:u(),ref:"2026_6319_Z72887_962",lib:"LENOR COLLECTION PEAUX SENSIBL",ent:"ROYE",op:"P19",alerte:"alerte nationale",taux:"0.0%",frn:"88332",appro:"AD04"},
+  {id:u(),ref:"2026_6319_Z76515_969",lib:"35D ARIEL LIQ ULTRA DETA",ent:"LUDRES",op:"P19",alerte:"alerte locale",taux:"28.4%",frn:"88332",appro:"AD04"},
+];
+
+function u(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function td(){return new Date().toLocaleDateString('fr-FR');}
+function nw(){return new Date().toLocaleString('fr-FR');}
+function sv(){try{localStorage.setItem('appro-db',JSON.stringify(DB));}catch(e){}}
+
+function toast(m,type='success',d=2800){
+  const el=document.getElementById('toast');
+  el.className='show '+type;
+  el.querySelectorAll('.spin').forEach(s=>s.remove());
+  if(type==='loading'){const sp=document.createElement('div');sp.className='spin';el.prepend(sp);}
+  document.getElementById('t-ico').textContent=type==='loading'?'':type==='success'?'✓':'✕';
+  document.getElementById('t-msg').textContent=m;
+  if(d>0)setTimeout(()=>el.classList.remove('show'),d);
+}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function openM(id){document.getElementById(id).classList.add('open');}
+
+// API
+async function api(p,method='POST'){
+  if(!API)return null;
+  if(method==='GET'){const r=await fetch(API+'?'+new URLSearchParams(p));return r.json();}
+  const r=await fetch(API,{method:'POST',body:JSON.stringify(p),headers:{'Content-Type':'application/json'}});
+  return r.json();
+}
+
+async function connect(){
+  const url=document.getElementById('api-url').value.trim();
+  if(!url){toast('Entre l\'URL Apps Script','error');return;}
+  API=url;localStorage.setItem(AK,url);
+  toast('Test connexion...','loading',0);
+  try{
+    const r=await api({action:'ping'},'GET');
+    if(r&&r.status==='ok'){
+      connected=true;
+      document.getElementById('dot').classList.add('on');
+      document.getElementById('cfg-status').textContent='Connecté ✓ — envoi Gmail activé';
+      document.getElementById('cfg-status').style.color='var(--green)';
+      setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+      toast('Sheet connecté ✓ — envoi Gmail activé');
+      loadContacts();
+    }else{toast('Erreur de connexion — vérifie les permissions Apps Script','error');}
+  }catch(e){toast('Erreur réseau — URL invalide ou droits insuffisants','error');}
+}
+
+// NAV
+function nav(p,el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  rend(p);
+}
+function rend(p){
+  if(p==='nl')rNL();else if(p==='stock')rStock();else if(p==='inno')rInno();
+  else if(p==='pch')rPCH();else if(p==='contacts')rContacts();else if(p==='history')rHist();
+  updateNB();
+}
+function updateNB(){
+  document.getElementById('nb-nl').textContent=DB.nl.filter(r=>r.statut==='en_attente').length;
+  document.getElementById('nb-stock').textContent=DB.stock.filter(r=>r.statut==='en_attente').length;
+  document.getElementById('nb-inno').textContent=DB.inno.length;
+  document.getElementById('nb-pch').textContent=DB.pch.length;
+}
+
+function getMail(frn){
+  const n=(frn||'').toLowerCase();
+  const c=DB.contacts.find(c=>c.frn.toLowerCase()===n||c.frn.toLowerCase().includes(n.split(' ')[0])||c.code===(frn||'').trim());
+  return c?c.mail:'[MAIL FRN À RENSEIGNER]';
+}
+
+// RENDER NL
+function rNL(){
+  let rows=DB.nl;
+  if(filters.nl.ad)rows=rows.filter(r=>r.appro===filters.nl.ad);
+  if(filters.nl.text){const t=filters.nl.text.toLowerCase();rows=rows.filter(r=>[r.cmd,r.frn,r.depot,r.fournisseur,r.action].join(' ').toLowerCase().includes(t));}
+  document.getElementById('s-nl-tot').textContent=rows.length;
+  document.getElementById('s-nl-pend').textContent=rows.filter(r=>r.statut==='en_attente').length;
+  document.getElementById('s-nl-sent').textContent=rows.filter(r=>r.statut==='envoye').length;
+  document.getElementById('s-nl-act').textContent=rows.filter(r=>r.action).length;
+  const tb=document.getElementById('tb-nl');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="10" class="er">Aucune ligne — cliquer "+ Ajouter"</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>`<tr>
+    <td class="mono" style="font-size:11px;color:var(--text2)">${r.cmd}</td>
+    <td class="mono" style="font-size:11px">${r.frn}</td>
+    <td><b>${r.ent}</b> <span style="font-size:10px;color:var(--text3)">${r.depot||''}</span></td>
+    <td class="mono" style="font-size:11px">${r.date||'—'}</td>
+    <td>${r.avis?`<span class="badge o">${r.avis}</span>`:''}</td>
+    <td style="font-size:12px">${r.fournisseur}</td>
+    <td><span class="badge b">${r.appro}</span></td>
+    <td style="font-weight:600;color:var(--orange)">${r.action||'—'}</td>
+    <td>${r.statut==='envoye'?'<span class="badge g">Envoyé ✓</span>':'<span class="badge gy">En attente</span>'}</td>
+    <td><div class="ia">
+      <button class="mb" onclick="openEmail('nl','${r.id}')">📧 Mail</button>
+      <button class="eb" onclick="openEdit('nl','${r.id}')">✏️</button>
+      <button class="db" onclick="delRow('nl','${r.id}')">✕</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+// RENDER STOCK
+function rStock(){
+  let rows=DB.stock;
+  if(filters.stock.ad)rows=rows.filter(r=>r.appro===filters.stock.ad);
+  if(filters.stock.diag)rows=rows.filter(r=>r.diag.includes(filters.stock.diag));
+  if(filters.stock.text){const t=filters.stock.text.toLowerCase();rows=rows.filter(r=>[r.ifls,r.lib,r.ent,r.frn].join(' ').toLowerCase().includes(t));}
+  document.getElementById('s-st-rup').textContent=rows.filter(r=>r.diag.includes('sans stock')).length;
+  document.getElementById('s-st-fbl').textContent=rows.filter(r=>r.diag.includes('STOCK faible')).length;
+  const pot=rows.reduce((s,r)=>s+(parseFloat(r.pot)||0),0);
+  document.getElementById('s-st-pot').textContent=Math.round(pot).toLocaleString('fr-FR')+'€';
+  document.getElementById('s-st-sent').textContent=rows.filter(r=>r.statut==='envoye').length;
+  const tb=document.getElementById('tb-stock');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="10" class="er">Aucune alerte</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>{
+    const db=r.diag.includes('sans stock')?'<span class="badge r">Rupture</span>':r.diag.includes('STOCK faible')?'<span class="badge o">Stock faible</span>':'<span class="badge g">Avec stock</span>';
+    return `<tr>
+      <td><span class="badge ${r.classe==='A'?'r':r.classe==='B'?'o':'gy'}">${r.classe}</span></td>
+      <td class="mono" style="font-size:11px">${r.ifls}</td>
+      <td style="font-size:11px;max-width:160px">${r.lib}</td>
+      <td style="font-size:11px">${r.ent}</td>
+      <td>${db}</td>
+      <td style="font-size:11px">${r.frn}</td>
+      <td class="mono" style="font-weight:600;color:var(--orange)">${(parseFloat(r.pot)||0).toLocaleString('fr-FR')}€</td>
+      <td class="mono">${r.couv}j</td>
+      <td><span class="badge b">${r.appro}</span></td>
+      <td><div class="ia">
+        <button class="mb" onclick="openEmail('stock','${r.id}')">📧 Relancer</button>
+        <button class="eb" onclick="openEdit('stock','${r.id}')">✏️</button>
+        <button class="db" onclick="delRow('stock','${r.id}')">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// RENDER INNO
+function rInno(){
+  let rows=DB.inno;
+  if(filters.inno.alerte)rows=rows.filter(r=>r.alerte.includes(filters.inno.alerte));
+  if(filters.inno.text){const t=filters.inno.text.toLowerCase();rows=rows.filter(r=>[r.ifls,r.lib,r.ent,r.frn].join(' ').toLowerCase().includes(t));}
+  document.getElementById('s-in-4').textContent=rows.filter(r=>r.alerte.startsWith('4')).length;
+  document.getElementById('s-in-3').textContent=rows.filter(r=>r.alerte.startsWith('3')).length;
+  document.getElementById('s-in-2').textContent=rows.filter(r=>r.alerte.startsWith('2')).length;
+  document.getElementById('s-in-tot').textContent=rows.length;
+  const tb=document.getElementById('tb-inno');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="er">Aucune alerte innovation</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>{
+    const lv=r.alerte.startsWith('4')?'r':'o';
+    const sa=r.alerte.length>40?r.alerte.slice(0,39)+'…':r.alerte;
+    return `<tr>
+      <td class="mono" style="font-size:11px">${r.ifls}</td>
+      <td style="font-size:11px;max-width:140px">${r.lib}</td>
+      <td style="font-size:11px">${r.ent}</td>
+      <td><span class="badge ${lv}" title="${r.alerte}">${sa}</span></td>
+      <td style="font-size:11px">${r.frn}</td>
+      <td class="mono">${r.encours}</td>
+      <td class="mono" style="font-size:11px">${r.dateRec||'—'}</td>
+      <td><span class="badge b">${r.appro}</span></td>
+      <td><div class="ia">
+        <button class="mb" onclick="openEmail('inno','${r.id}')">📧 Mail</button>
+        <button class="eb" onclick="openEdit('inno','${r.id}')">✏️</button>
+        <button class="db" onclick="delRow('inno','${r.id}')">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// RENDER PCH
+function rPCH(){
+  let rows=DB.pch;
+  if(filters.pch.text){const t=filters.pch.text.toLowerCase();rows=rows.filter(r=>[r.ref,r.lib,r.ent].join(' ').toLowerCase().includes(t));}
+  document.getElementById('s-pch-nat').textContent=rows.filter(r=>r.alerte.includes('nationale')).length;
+  document.getElementById('s-pch-loc').textContent=rows.filter(r=>r.alerte.includes('locale')).length;
+  const tv=rows.map(r=>parseFloat(r.taux)||0);
+  document.getElementById('s-pch-taux').textContent=(tv.length?Math.round(tv.reduce((a,b)=>a+b,0)/tv.length):0)+'%';
+  document.getElementById('s-pch-todo').textContent=rows.filter(r=>(parseFloat(r.taux)||0)<80).length;
+  const tb=document.getElementById('tb-pch');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="er">Aucune promotion</td></tr>';return;}
+  tb.innerHTML=rows.map(r=>{
+    const tv2=parseFloat(r.taux)||0;
+    const tc=tv2===0?'r':tv2<80?'o':'g';
+    return `<tr>
+      <td class="mono" style="font-size:10px;color:var(--text2)">${r.ref}</td>
+      <td style="font-size:11px;max-width:150px">${r.lib}</td>
+      <td style="font-size:11px">${r.ent}</td>
+      <td><span class="badge gy">${r.op}</span></td>
+      <td><span class="badge ${r.alerte.includes('nationale')?'r':'o'}">${r.alerte}</span></td>
+      <td><span class="badge ${tc}">${r.taux}</span></td>
+      <td class="mono" style="font-size:11px">${r.frn}</td>
+      <td><span class="badge b">${r.appro}</span></td>
+      <td><div class="ia">
+        <button class="mb" onclick="openEmail('pch','${r.id}')">📧 Mail</button>
+        <button class="eb" onclick="openEdit('pch','${r.id}')">✏️</button>
+        <button class="db" onclick="delRow('pch','${r.id}')">✕</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// RENDER CONTACTS
+function rContacts(){
+  let rows=DB.contacts;
+  if(cFilt.ad)rows=rows.filter(c=>c.appro===cFilt.ad);
+  if(cFilt.text){const t=cFilt.text.toLowerCase();rows=rows.filter(c=>[c.frn,c.code,c.mail].join(' ').toLowerCase().includes(t));}
+  const g=document.getElementById('cg');
+  if(!rows.length){g.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text3)">Aucun contact</div>';return;}
+  g.innerHTML=rows.map(c=>`
+    <div class="cc">
+      <div class="cav">${c.frn.slice(0,2).toUpperCase()}</div>
+      <div class="ci">
+        <div class="cn">${c.frn}</div>
+        <div class="ck">CODE FRN : ${c.code}</div>
+        <div class="cm">📧 ${c.mail}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0">
+        <span class="badge b">${c.appro}</span>
+        <div class="ia">
+          <button class="eb" onclick="openEditContact('${c.code}')">✏️ Modifier</button>
+          <button class="db" onclick="delContact('${c.code}')">✕ Supprimer</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+function filtC(v){cFilt.text=v;rContacts();}
+function filtCAD(v){cFilt.ad=v;rContacts();}
+
+// RENDER HISTORY
+function rHist(){
+  const tb=document.getElementById('tb-hist');
+  if(!DB.history.length){tb.innerHTML='<tr><td colspan="6" class="er">Aucun email envoyé</td></tr>';return;}
+  tb.innerHTML=[...DB.history].reverse().map((h,i)=>`<tr>
+    <td class="mono" style="font-size:11px">${h.time}</td>
+    <td style="font-size:11px;max-width:160px;word-break:break-all">${h.to}</td>
+    <td style="font-size:12px">${h.frn}</td>
+    <td style="font-size:11px">${h.subject}</td>
+    <td><span class="badge b">${(h.type||'').toUpperCase()}</span></td>
+    <td><button onclick='reopenHist(${JSON.stringify(h)})' style="padding:2px 8px;font-size:11px;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer">👁</button></td>
+  </tr>`).join('');
+}
+function clearHist(){if(confirm('Effacer l\'historique ?')){DB.history=[];sv();rHist();toast('Historique effacé');}}
+
+// FILTERS
+function filt(p,v){filters[p].text=v;rend(p);}
+function filtAD(p,v){filters[p].ad=v;rend(p);}
+function filtDiag(v){filters.stock.diag=v;rStock();}
+function filtAlerte(v){filters.inno.alerte=v;rInno();}
+
+// FIELDS CONFIG
+const FIELDS={
+  nl:[
+    {k:'cmd',l:'N° commande *',ph:'08849919'},
+    {k:'frn',l:'Code FRN',ph:'88332'},
+    {k:'ent',l:'Code entrepôt',ph:'962'},
+    {k:'depot',l:'Nom entrepôt',ph:'ROYE'},
+    {k:'date',l:'Date actuelle (livraison)',ph:'14/04/26'},
+    {k:'avis',l:'Avis d\'EX (laisser vide si aucun)',ph:'09/04/26'},
+    {k:'action',l:'Action requise / nouvelle date *',ph:'20/04'},
+    {k:'fournisseur',l:'Nom fournisseur *',ph:'PROVEN ORAPI GROUP'},
+    {k:'appro',l:'Approvisionneur',type:'select',opts:['AD02','AD03','AD04','AD05','AD06','AD07','AD10']},
+  ],
+  stock:[
+    {k:'classe',l:'Classe',type:'select',opts:['A','B','C']},
+    {k:'ifls',l:'Code IFLS *',ph:'160369'},
+    {k:'lib',l:'Libellé article *',ph:'12RLX PH.BLC...'},
+    {k:'ent',l:'Entrepôt *',ph:'962 - ROYE'},
+    {k:'diag',l:'Diagnostic',type:'select',opts:['sans stock, sans encours à COMMANDER','STOCK faible, sans encours à COMMANDER','avec stock, sans encours, à COMMANDER']},
+    {k:'frn',l:'Fournisseur *',ph:'WEPA FRANCE SAS'},
+    {k:'pot',l:'Potentiel € (chiffre sans symbole)',ph:'2817'},
+    {k:'couv',l:'Couverture (jours)',ph:'5'},
+    {k:'appro',l:'Approvisionneur',type:'select',opts:['AD02','AD03','AD04','AD05','AD06','AD07','AD10']},
+    {k:'comment',l:'Commentaire',ph:'Relance fournisseur'},
+  ],
+  inno:[
+    {k:'ifls',l:'Code IFLS *',ph:'V92376'},
+    {k:'lib',l:'Libellé article *',ph:'SWIFF KIT...'},
+    {k:'ent',l:'Entrepôt *',ph:'AULNAY'},
+    {k:'alerte',l:'Niveau alerte',type:'select',opts:['4 - KO - sans stock sans encours','3 - KO - Stock + encours < engagement','2 - KO - résolution tardive']},
+    {k:'frn',l:'Fournisseur *',ph:'EURECA PROCTER VMI'},
+    {k:'encours',l:'Encours (colis)',ph:'0'},
+    {k:'dateRec',l:'Date réception prévue',ph:'28/04'},
+    {k:'appro',l:'Approvisionneur',type:'select',opts:['AD02','AD03','AD04','AD05','AD06','AD07','AD10']},
+    {k:'comment',l:'Commentaire',ph:'relance frn'},
+  ],
+  pch:[
+    {k:'ref',l:'Clé *',ph:'2026_6319_V91040_962'},
+    {k:'lib',l:'Libellé *',ph:'ARIEL PODS...'},
+    {k:'ent',l:'Entrepôt',ph:'ROYE'},
+    {k:'op',l:'Opération',ph:'P19'},
+    {k:'alerte',l:'Type alerte',type:'select',opts:['alerte locale','alerte nationale']},
+    {k:'taux',l:'Taux de détention',ph:'61.1%'},
+    {k:'frn',l:'Code FRN',ph:'88332'},
+    {k:'appro',l:'Approvisionneur',type:'select',opts:['AD02','AD03','AD04','AD05','AD06','AD07','AD10']},
+  ],
+};
+
+function openAdd(type){
+  editMode=null;
+  document.getElementById('mo-add-title').textContent='Ajouter — '+type.toUpperCase();
+  buildFields(type,{});
+  openM('mo-add');
+}
+function openEdit(type,id){
+  const row=DB[type].find(r=>r.id===id);
+  if(!row)return;
+  editMode={type,id};
+  document.getElementById('mo-add-title').textContent='Modifier — '+type.toUpperCase();
+  buildFields(type,row);
+  openM('mo-add');
+}
+function buildFields(type,row){
+  document.getElementById('mo-add-fields').innerHTML=FIELDS[type].map(f=>`
+    <div class="mf">
+      <label>${f.l}</label>
+      ${f.type==='select'
+        ?`<select id="af-${f.k}">${f.opts.map(o=>`<option${row[f.k]===o?' selected':''}>${o}</option>`).join('')}</select>`
+        :`<input type="text" id="af-${f.k}" placeholder="${f.ph||''}" value="${(row[f.k]||'').replace(/"/g,'&quot;')}">`
+      }
+    </div>
+  `).join('');
+}
+function saveRow(){
+  const type=editMode?editMode.type:document.getElementById('mo-add-title').textContent.split('— ')[1].toLowerCase();
+  const fields=FIELDS[type];
+  const obj={};
+  fields.forEach(f=>{const el=document.getElementById('af-'+f.k);if(el)obj[f.k]=el.value;});
+  if(editMode){
+    const idx=DB[type].findIndex(r=>r.id===editMode.id);
+    if(idx>=0)DB[type][idx]=Object.assign(DB[type][idx],obj);
+    toast('Ligne modifiée ✓');
+  }else{
+    obj.id=u();obj.statut='en_attente';
+    DB[type].push(obj);
+    toast('Ligne ajoutée ✓');
+    if(connected)api({action:'addRow',tab:{nl:'NL',stock:'Stock',inno:'Inno',pch:'PCH'}[type],row:obj}).catch(()=>{});
+  }
+  sv();closeM('mo-add');rend(type);updateNB();
+}
+function delRow(type,id){
+  if(!confirm('Supprimer cette ligne ?'))return;
+  DB[type]=DB[type].filter(r=>r.id!==id);
+  sv();rend(type);updateNB();
+  if(connected)api({action:'deleteRow',tab:{nl:'NL',stock:'Stock',inno:'Inno',pch:'PCH'}[type],id}).catch(()=>{});
+  toast('Ligne supprimée');
+}
+
+// CONTACTS CRUD
+function openAddContact(){
+  document.getElementById('mo-ct-title').textContent='Nouveau contact fournisseur';
+  document.getElementById('ct-frn').value='';
+  document.getElementById('ct-code').value='';
+  document.getElementById('ct-appro').value='AD04';
+  document.getElementById('ct-mail').value='';
+  openM('mo-contact');
+}
+function openEditContact(code){
+  const c=DB.contacts.find(c=>c.code===code);
+  if(!c)return;
+  document.getElementById('mo-ct-title').textContent='Modifier — '+c.frn;
+  document.getElementById('ct-frn').value=c.frn;
+  document.getElementById('ct-code').value=c.code;
+  document.getElementById('ct-appro').value=c.appro;
+  document.getElementById('ct-mail').value=c.mail;
+  openM('mo-contact');
+}
+function saveContact(){
+  const contact={
+    frn:document.getElementById('ct-frn').value.trim(),
+    code:document.getElementById('ct-code').value.trim(),
+    appro:document.getElementById('ct-appro').value,
+    mail:document.getElementById('ct-mail').value.trim(),
+  };
+  if(!contact.frn||!contact.code||!contact.mail){toast('Champs obligatoires manquants (*)','error');return;}
+  const idx=DB.contacts.findIndex(c=>c.code===contact.code);
+  if(idx>=0){DB.contacts[idx]=contact;toast('Contact mis à jour — '+contact.frn+' ✓');}
+  else{DB.contacts.push(contact);toast('Contact ajouté — '+contact.frn+' ✓');}
+  sv();closeM('mo-contact');rContacts();
+  if(connected)api({action:'saveContact',contact}).catch(()=>{});
+}
+function delContact(code){
+  if(!confirm('Supprimer ce contact ?'))return;
+  DB.contacts=DB.contacts.filter(c=>c.code!==code);
+  sv();rContacts();
+  if(connected)api({action:'deleteContact',codeFrn:code}).catch(()=>{});
+  toast('Contact supprimé');
+}
+async function loadContacts(){
+  if(!connected){toast('Connecte le Sheet d\'abord','error');return;}
+  toast('Chargement contacts...','loading',0);
+  try{
+    const data=await api({action:'getContacts'},'GET');
+    if(Array.isArray(data)&&data.length){
+      DB.contacts=data;sv();
+      setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+      rContacts();toast(data.length+' contacts chargés depuis le Sheet ✓');
+    }else{toast('Aucun contact dans le Sheet','error');}
+  }catch(e){toast('Erreur chargement contacts','error');}
+}
+
+// EMAIL
+function buildMail(type,row){
+  const d=td();
+  if(type==='nl'){
+    return{
+      to:getMail(row.fournisseur),
+      subject:`RELANCE COMMANDE — N°${row.cmd} — ENT ${row.ent} ${row.depot} — ${d}`,
+      body:`Bonjour,\n\nNous vous contactons au sujet de la commande ci-dessous.\n\n📦 COMMANDE N°${row.cmd}\n• Entrepôt : ${row.ent} – ${row.depot}\n• Date livraison prévue : ${row.date}\n• Action requise : ${row.action}\n${row.avis?`• Avis d'expédition : ${row.avis}\n`:''}\nMerci de nous confirmer :\n1. La disponibilité des marchandises\n2. La date de livraison confirmée\n3. Tout retard éventuel\n\nCordialement,\nService Approvisionnement DPH — ${row.appro}\nCarrefour France`
+    };
+  }
+  if(type==='stock'){
+    return{
+      to:getMail(row.frn),
+      subject:`RELANCE STOCK — IFLS ${row.ifls} — ${row.ent} — ${d}`,
+      body:`Bonjour,\n\nAlerte stock détectée sur la référence suivante.\n\n🔴 Alerte : ${row.diag}\n\n📋 Article :\n• IFLS : ${row.ifls}\n• Libellé : ${row.lib}\n• Entrepôt : ${row.ent}\n• Classe : ${row.classe}\n• Couverture : ${row.couv} jour(s)\n• Potentiel de sortie : ${row.pot} €\n\nMerci de nous communiquer une date de livraison dans les meilleurs délais.\n\nCordialement,\nService Approvisionnement DPH — ${row.appro}\nCarrefour France`
+    };
+  }
+  if(type==='inno'){
+    return{
+      to:getMail(row.frn),
+      subject:`ALERTE INNOVATION — IFLS ${row.ifls} — ${row.ent} — ${d}`,
+      body:`Bonjour,\n\nAlerte sur article innovation.\n\n⚠️ Alerte : ${row.alerte}\n\n📋 Article :\n• IFLS : ${row.ifls}\n• Libellé : ${row.lib}\n• Entrepôt : ${row.ent}\n• Encours : ${row.encours} colis\n• Date réception prévue : ${row.dateRec||'Non définie'}\n\nAction : ${row.comment||'Relance fournisseur'}\n\nCordialement,\nService Approvisionnement DPH — ${row.appro}\nCarrefour France`
+    };
+  }
+  if(type==='pch'){
+    const ci=DB.contacts.find(c=>c.code===row.frn)||{};
+    return{
+      to:ci.mail||'[MAIL FRN]',
+      subject:`DÉBLOCAGE PROMO — ${row.ref} — ${row.ent} — ${d}`,
+      body:`Bonjour,\n\nTaux de détention insuffisant sur l'opération ${row.op}.\n\n🏷️ ${row.ref}\n• Article : ${row.lib}\n• Entrepôt : ${row.ent}\n• Alerte : ${row.alerte}\n• Taux actuel : ${row.taux}\n\nMerci de traiter cette alerte en priorité.\n\nCordialement,\nService Approvisionnement DPH — ${row.appro}\nCarrefour France`
+    };
+  }
+}
+
+function openEmail(type,id){
+  const row=DB[type].find(r=>r.id===id);
+  if(!row)return;
+  emailCtx={type,id,row};
+  const{to,subject,body}=buildMail(type,row);
+  document.getElementById('mo-email-sub').textContent=type.toUpperCase()+' — '+(row.lib||row.cmd||row.ref||'');
+  document.getElementById('em-to').textContent=to;
+  document.getElementById('em-subj').textContent=subject;
+  document.getElementById('em-body').value=body;
+  document.getElementById('send-btn').textContent='📤 Ouvrir dans Gmail';
+  openM('mo-email');
+}
+function copyEmail(){
+  const txt='À : '+document.getElementById('em-to').textContent+'\nObjet : '+document.getElementById('em-subj').textContent+'\n\n'+document.getElementById('em-body').value;
+  navigator.clipboard.writeText(txt).then(()=>toast('Email copié ✓')).catch(()=>toast('Copier manuellement','error'));
+}
+function doSend(){
+  const to=document.getElementById('em-to').textContent;
+  const subject=document.getElementById('em-subj').textContent;
+  const body=document.getElementById('em-body').value;
+  // Nettoyer les destinataires multiples (; -> ,) pour Gmail
+  const toClean=to.replace(/\s*;\s*/g,',').trim();
+  // Construire l'URL Gmail compose
+  const gmailUrl='https://mail.google.com/mail/?view=cm'
+    +'&to='+encodeURIComponent(toClean)
+    +'&su='+encodeURIComponent(subject)
+    +'&body='+encodeURIComponent(body);
+  // Ouvrir Gmail dans un nouvel onglet
+  window.open(gmailUrl,'_blank');
+  // Marquer comme envoyé après 2 secondes
+  setTimeout(()=>{
+    markSent();
+    toast('Gmail ouvert ✓ — clique Envoyer dans Gmail');
+  },1500);
+  closeM('mo-email');
+}
+function markSent(){
+  if(!emailCtx)return;
+  const{type,id,row}=emailCtx;
+  const r=DB[type].find(r=>r.id===id);
+  if(r)r.statut='envoye';
+  DB.history.push({time:nw(),to:document.getElementById('em-to').textContent,frn:row?.fournisseur||row?.frn||'',subject:document.getElementById('em-subj').textContent,type,body:document.getElementById('em-body').value});
+  sv();rend(type);updateNB();
+}
+function sendAllPage(type){
+  const p=DB[type].filter(r=>r.statut==='en_attente');
+  if(!p.length){toast('Aucun email en attente','error');return;}
+  openEmail(type,p[0].id);
+}
+function reopenHist(h){
+  document.getElementById('em-to').textContent=h.to;
+  document.getElementById('em-subj').textContent=h.subject;
+  document.getElementById('em-body').value=h.body;
+  document.getElementById('mo-email-sub').textContent='Historique — '+h.frn;
+  emailCtx=null;
+  openM('mo-email');
+}
+
+// SYNC
+async function syncAll(){
+  if(!connected){toast('Connecte le Sheet d\'abord','error');return;}
+  toast('Synchronisation...','loading',0);
+  try{
+    const res=await api({action:'syncAll',data:{nl:DB.nl,stock:DB.stock,inno:DB.inno,pch:DB.pch}});
+    setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+    toast('Sheet synchronisé ✓');
+  }catch(e){toast('Erreur sync','error');}
+}
+async function pullAll(){
+  if(!connected){toast('Connecte le Sheet d\'abord','error');return;}
+  toast('Chargement...','loading',0);
+  try{
+    for(const tab of['NL','Stock','Inno','PCH']){
+      const data=await api({action:'getData',tab},'GET');
+      if(Array.isArray(data)&&data.length)DB[tab.toLowerCase()]=data;
+    }
+    sv();
+    setTimeout(()=>document.getElementById('toast').classList.remove('show'),100);
+    rend('nl');updateNB();toast('Données rechargées depuis le Sheet ✓');
+  }catch(e){toast('Erreur chargement','error');}
+}
+
+// INIT
+document.getElementById('today').textContent=td();
+if(API){
+  document.getElementById('api-url').value=API;
+  api({action:'ping'},'GET').then(r=>{
+    if(r&&r.status==='ok'){
+      connected=true;
+      document.getElementById('dot').classList.add('on');
+      document.getElementById('cfg-status').textContent='Connecté ✓ — envoi Gmail activé';
+      document.getElementById('cfg-status').style.color='var(--green)';
+    }
+  }).catch(()=>{});
+}
+rend('nl');
+</script>
+</body>
+</html>
